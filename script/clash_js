@@ -25,7 +25,7 @@ function main(config) {
   //   Responsible for actual routing rules
   //
   // Network Test:
-  //   Follow airport's default manual selector
+  //   Follow the shared proxies selector by default
   //
   // ================================================================
 
@@ -402,6 +402,8 @@ function main(config) {
   // ================================================================
 
   var managedGroups = {
+
+    "proxies": true,
 
     "一键代理": true,
 
@@ -1552,6 +1554,14 @@ function main(config) {
   // 27. One-click Proxy
   // ================================================================
 
+  // Shared selector: region auto-test groups or individual subscription nodes.
+  // Service groups follow this selector unless manually overridden.
+  var sharedSelector = {
+    "name": "proxies",
+    "type": "select",
+    "proxies": availableRegions.concat(proxyNames).concat(["国内直连"])
+  };
+
   var mainSelector = {
 
     "name": "一键代理",
@@ -1559,7 +1569,7 @@ function main(config) {
     "type": "select",
 
     "proxies":
-      availableRegions.concat([
+      ["proxies"].concat(availableRegions).concat([
 
         "国内直连"
 
@@ -1577,6 +1587,8 @@ function main(config) {
     mainSelector["icon"] =
       mainIcon;
 
+    sharedSelector["icon"] = mainIcon;
+
   }
 
 
@@ -1593,7 +1605,7 @@ function main(config) {
       "type": "select",
 
       "proxies":
-        availableRegions.concat([
+        ["proxies"].concat(availableRegions).concat([
 
           "国内直连"
 
@@ -1648,28 +1660,8 @@ function main(config) {
   // ================================================================
   // 29. Network Test
   //
-  // IMPORTANT:
-  //
-  // Network Test follows the airport's default manual selector.
-  //
-  // Example:
-  //
-  //   九云
-  //      ↓
-  //   台湾节点
-  //
-  // Network Test:
-  //
-  //   网络检测
-  //      ↓
-  //     九云
-  //      ↓
-  //   台湾节点
-  //
-  // Therefore the network diagnostic websites will test the same
-  // outbound proxy selected by the user in the airport's default
-  // manual selector.
-  //
+  // Follow the shared selector by default; the airport manual selector
+  // remains available for a separate diagnostic test.
   // ================================================================
 
   var networkTestGroup = {
@@ -1687,20 +1679,16 @@ function main(config) {
 
     networkTestGroup["proxies"] = [
 
+      "proxies",
       defaultAirportGroup
 
     ];
 
   } else {
 
-    // Fallback:
-    //
-    // If no suitable airport manual selector can be detected,
-    // follow the Perfect-Rules main selector instead.
-
     networkTestGroup["proxies"] = [
 
-      "一键代理"
+      "proxies"
 
     ];
 
@@ -1732,13 +1720,15 @@ function main(config) {
   //
   // remains visible.
   //
-  // Network Test follows the airport default selector.
+  // Network Test follows the shared proxies selector by default.
   //
   // ================================================================
 
   config["proxy-groups"] =
 
-    preservedGroups
+    [sharedSelector]
+
+      .concat(preservedGroups)
 
       .concat(businessGroups)
 
